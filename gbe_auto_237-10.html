@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GBE Auto 237 – Gestion des Apprenants</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00b04f; --green-dark: #007f38; --green-light: #e6f9ee;
+    --red: #e63946; --yellow: #f4a100; --bg: #f0f4f0;
+    --white: #ffffff; --text: #1a2e1a; --muted: #6b7c6b;
+    --border: #cde4d0; --shadow: 0 4px 24px rgba(0,100,40,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #007f38 0%, #00b04f 60%, #f4a100 100%); }
+  .login-card { background: white; border-radius: 28px; padding: 40px 32px; text-align: center; box-shadow: 0 16px 64px rgba(0,80,30,0.25); max-width: 380px; width: 90%; }
+  .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, #007f38, #00b04f); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue'; font-size: 28px; color: white; margin: 0 auto 16px; }
+  .login-card h1 { font-family: 'Bebas Neue'; font-size: 30px; color: var(--green-dark); letter-spacing: 2px; }
+  .login-card .sub { color: var(--muted); font-size: 13px; font-weight: 600; margin: 6px 0 28px; }
+  .login-field { width: 100%; padding: 13px 16px; border: 2px solid var(--border); border-radius: 12px; font-family: 'Nunito'; font-size: 16px; font-weight: 700; color: var(--text); text-align: center; letter-spacing: 3px; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+  .login-field:focus { border-color: var(--green); }
+  .login-btn { width: 100%; padding: 14px; background: var(--green); color: white; border: none; border-radius: 12px; font-family: 'Nunito'; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+  .login-btn:hover { background: var(--green-dark); }
+  .login-error { color: var(--red); font-size: 13px; font-weight: 700; margin-top: 10px; display: none; }
+  .login-note { margin-top: 18px; font-size: 11px; color: var(--muted); font-weight: 600; line-height: 1.5; }
+
+  #app-screen { display: none; }
+  header { background: linear-gradient(135deg, #007f38 0%, #00b04f 60%, #f4a100 100%); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,80,30,0.18); }
+  .header-inner { display: flex; align-items: center; gap: 14px; padding: 12px 24px; }
+  .logo-circle { width: 48px; height: 48px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue'; font-size: 18px; color: var(--green-dark); box-shadow: 0 2px 8px rgba(0,0,0,0.15); flex-shrink: 0; }
+  .header-title h1 { font-family: 'Bebas Neue'; font-size: 24px; color: white; letter-spacing: 2px; line-height: 1; }
+  .header-title p { color: rgba(255,255,255,0.82); font-size: 11px; font-weight: 600; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .stat-chip { background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 5px 12px; text-align: center; color: white; }
+  .stat-chip .num { font-family: 'Bebas Neue'; font-size: 18px; line-height: 1; }
+  .stat-chip .lbl { font-size: 9px; font-weight: 700; opacity: 0.85; }
+  .sync-indicator { font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; transition: all 0.3s; white-space: nowrap; }
+  .sync-indicator.ok { background: rgba(0,200,80,0.25); }
+  .sync-indicator.saving { background: rgba(255,200,0,0.25); }
+  .sync-indicator.error { background: rgba(230,57,70,0.3); }
+  .sync-indicator.loading { background: rgba(255,255,255,0.1); }
+  .logout-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 12px; color: white; font-family: 'Nunito'; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .logout-btn:hover { background: rgba(255,255,255,0.25); }
+
+  main { max-width: 1150px; margin: 0 auto; padding: 24px 16px; }
+  .form-card { background: var(--white); border-radius: 20px; padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1.5px solid var(--border); }
+  .form-card h2 { font-family: 'Bebas Neue'; font-size: 18px; color: var(--green-dark); letter-spacing: 1.5px; margin-bottom: 14px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: end; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input { padding: 9px 12px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Nunito'; font-size: 14px; font-weight: 600; color: var(--text); background: #fafff9; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus { border-color: var(--green); background: white; }
+  .form-group input::placeholder { color: #bbb; font-weight: 400; }
+  .btn { padding: 10px 18px; border: none; border-radius: 10px; font-family: 'Nunito'; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.18s; display: inline-flex; align-items: center; gap: 5px; }
+  .btn-green { background: var(--green); color: white; } .btn-green:hover { background: var(--green-dark); }
+  .btn-yellow { background: var(--yellow); color: white; } .btn-yellow:hover { background: #d68f00; }
+  .btn-red { background: var(--red); color: white; } .btn-red:hover { background: #c0202e; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 2px solid var(--border); } .btn-ghost:hover { background: var(--bg); }
+
+  .totals-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px; }
+  .total-chip { background: white; border-radius: 14px; padding: 12px 16px; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+  .total-chip .tc-label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 2px; }
+  .total-chip .tc-val { font-family: 'Bebas Neue'; font-size: 20px; }
+  .tc-green { color: var(--green-dark); } .tc-red { color: var(--red); } .tc-blue { color: #1565c0; }
+
+  .table-card { background: var(--white); border-radius: 20px; box-shadow: var(--shadow); border: 1.5px solid var(--border); overflow: hidden; }
+  .table-header { padding: 14px 20px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--border); flex-wrap: wrap; gap: 8px; }
+  .table-header h2 { font-family: 'Bebas Neue'; font-size: 16px; color: var(--green-dark); letter-spacing: 1.5px; }
+  .count-badge { background: var(--green-light); color: var(--green-dark); font-weight: 800; font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #f4fbf6; }
+  thead th { padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border-bottom: 2px solid var(--border); }
+  tbody tr { border-bottom: 1px solid #eaf4ec; transition: background 0.15s; }
+  tbody tr:hover { background: #f4fbf6; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 10px 12px; font-size: 12px; font-weight: 600; }
+  .td-name { font-weight: 800; }
+  .td-num { font-family: 'Bebas Neue'; font-size: 15px; }
+  .td-green { color: var(--green-dark); } .td-red { color: var(--red); }
+  .td-actions { display: flex; gap: 5px; }
+  .badge-reste { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+  .badge-zero { background: #e6f9ee; color: var(--green-dark); }
+  .badge-partial { background: #fff4e0; color: #a06000; }
+  .badge-full { background: #fdeaea; color: var(--red); }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-state .icon { font-size: 40px; margin-bottom: 8px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 20px; padding: 24px; width: 500px; max-width: 95vw; box-shadow: 0 8px 48px rgba(0,80,30,0.18); animation: popIn 0.2s ease; }
+  @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal h3 { font-family: 'Bebas Neue'; font-size: 18px; color: var(--green-dark); letter-spacing: 1.5px; margin-bottom: 16px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+  @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr 1fr; } .totals-row { grid-template-columns: 1fr 1fr; } .stat-chip { display: none; } }
+  @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } table { font-size: 11px; } td, thead th { padding: 8px 6px; } .header-inner { padding: 10px 12px; } }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">GBE</div>
+    <h1>GBE Auto 237</h1>
+    <p class="sub">Centre de Formation Automobile · Cameroun</p>
+    <input type="password" class="login-field" id="pwd-input" placeholder="••••••••" maxlength="20" onkeydown="if(event.key==='Enter')seConnecter()">
+    <button class="login-btn" onclick="seConnecter()">🔐 Accéder à l'application</button>
+    <div class="login-error" id="login-error">❌ Mot de passe incorrect</div>
+    <p class="login-note">🔒 Toutes les personnes avec le mot de passe voient les mêmes données en temps réel</p>
+  </div>
+</div>
+
+<div id="app-screen">
+  <header>
+    <div class="header-inner">
+      <div class="logo-circle">GBE</div>
+      <div class="header-title">
+        <h1>GBE Auto 237</h1>
+        <p>Centre de Formation Automobile</p>
+      </div>
+      <div class="header-right">
+        <span class="sync-indicator loading" id="sync-status">⏳</span>
+        <div class="stat-chip"><div class="num" id="stat-total">0</div><div class="lbl">Apprenants</div></div>
+        <div class="stat-chip"><div class="num" id="stat-soldes">0</div><div class="lbl">Soldés</div></div>
+        <button class="logout-btn" onclick="deconnecter()">🚪 Quitter</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="form-card">
+      <h2>➕ Enregistrer un Apprenant</h2>
+      <div class="form-grid">
+        <div class="form-group"><label>Nom complet</label><input type="text" id="inp-nom" placeholder="Ex: Jean Mballa"></div>
+        <div class="form-group"><label>Frais de formation (FCFA)</label><input type="number" id="inp-frais" placeholder="Ex: 150000" min="0"></div>
+        <div class="form-group"><label>Avance versée (FCFA)</label><input type="number" id="inp-avance" placeholder="Ex: 50000" min="0"></div>
+        <div class="form-group"><label>📅 Date paiement avance</label><input type="date" id="inp-date-avance"></div>
+        <div class="form-group"><label>📅 Date paiement reste</label><input type="date" id="inp-date-reste"></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn btn-green" onclick="ajouterApprenant()" style="width:100%">✅ Enregistrer</button></div>
+      </div>
+      <div id="form-error" style="color:var(--red);font-size:12px;font-weight:700;margin-top:8px;display:none;"></div>
+    </div>
+
+    <div class="totals-row">
+      <div class="total-chip"><div class="tc-label">Total Frais</div><div class="tc-val tc-blue" id="tot-frais">0 FCFA</div></div>
+      <div class="total-chip"><div class="tc-label">Total Avances</div><div class="tc-val tc-green" id="tot-avances">0 FCFA</div></div>
+      <div class="total-chip"><div class="tc-label">Total Reste</div><div class="tc-val tc-red" id="tot-reste">0 FCFA</div></div>
+      <div class="total-chip"><div class="tc-label">Soldés</div><div class="tc-val tc-green" id="tot-soldes">0 / 0</div></div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h2>📋 Liste des Apprenants</h2>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="text" placeholder="🔍 Rechercher…" id="search-inp" oninput="renderTable()" style="padding:7px 10px;border:2px solid var(--border);border-radius:10px;font-family:'Nunito';font-size:12px;font-weight:600;outline:none;">
+          <span class="count-badge" id="count-badge">0</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>#</th><th>Nom</th><th>Frais</th><th>Avance</th><th>Date Avance</th><th>Reste</th><th>Date Reste</th><th>Statut</th><th>Actions</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>✏️ Modifier l'Apprenant</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>Nom complet</label><input type="text" id="edit-nom"></div>
+      <div class="form-group"><label>Frais (FCFA)</label><input type="number" id="edit-frais" min="0"></div>
+      <div class="form-group"><label>Avance (FCFA)</label><input type="number" id="edit-avance" min="0"></div>
+      <div class="form-group" style="display:flex;align-items:flex-end;">
+        <div style="background:var(--green-light);border-radius:10px;padding:8px 12px;border:1.5px solid var(--border);width:100%;">
+          <div style="font-size:9px;font-weight:800;color:var(--muted);text-transform:uppercase;">Reste</div>
+          <div style="font-family:'Bebas Neue';font-size:18px;color:var(--red);" id="edit-reste-preview">0 FCFA</div>
+        </div>
+      </div>
+      <div class="form-group"><label>📅 Date avance</label><input type="date" id="edit-date-avance"></div>
+      <div class="form-group"><label>📅 Date reste</label><input type="date" id="edit-date-reste"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="fermerModal()">Annuler</button>
+      <button class="btn btn-yellow" onclick="sauvegarderModif()">💾 Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── CONFIGURATION ────────────────────────────────────
+  const MOT_DE_PASSE = 'gbe2024';
+  const JSONBIN_KEY  = '$2a$10$ZoqDW7j3FCu6j4Gt5Uvgf.UqrzOAKrbLcXorgNGArAehWdhIBnkpq';
+  const JSONBIN_URL  = 'https://api.jsonbin.io/v3/b';
+  const BIN_ID = '69cf74de856a682189f6571f'; // Bin partagé unique
+
+  let apprenants = [], editIndex = null, syncing = false;
+
+  // ── CONNEXION ────────────────────────────────────────
+  function seConnecter() {
+    const pwd = document.getElementById('pwd-input').value;
+    if (pwd === MOT_DE_PASSE) {
+      sessionStorage.setItem('gbe_auth', '1');
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      chargerDonnees();
+    } else {
+      const err = document.getElementById('login-error');
+      err.style.display = 'block';
+      document.getElementById('pwd-input').value = '';
+      setTimeout(() => err.style.display = 'none', 3000);
+    }
+  }
+
+  function deconnecter() {
+    sessionStorage.removeItem('gbe_auth');
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('pwd-input').value = '';
+  }
+
+  window.onload = function() {
+    if (sessionStorage.getItem('gbe_auth') === '1') {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+      chargerDonnees();
+    }
+  };
+
+  // ── SYNC STATUS ──────────────────────────────────────
+  function setSyncStatus(state, msg) {
+    const el = document.getElementById('sync-status');
+    el.className = 'sync-indicator ' + state;
+    const labels = { loading:'⏳ Chargement…', saving:'☁️ Sauvegarde…', ok:'✅ Synchronisé', error:'❌ Erreur' };
+    el.textContent = labels[state] || state;
+    if (msg) console.log(msg);
+  }
+
+  // ── JSONBIN : CHARGER ────────────────────────────────
+  async function chargerDonnees() {
+    setSyncStatus('loading');
+    try {
+      const res = await fetch(`${JSONBIN_URL}/${BIN_ID}/latest`, {
+        headers: { 'X-Master-Key': JSONBIN_KEY }
+      });
+      const data = await res.json();
+      apprenants = data.record.apprenants || [];
+      setSyncStatus('ok');
+    } catch(e) {
+      setSyncStatus('error', e.toString());
+      apprenants = JSON.parse(localStorage.getItem('gbe_backup') || '[]');
+    }
+    renderTable();
+  }
+
+  // ── JSONBIN : SAUVEGARDER ────────────────────────────
+  async function sauvegarder() {
+    localStorage.setItem('gbe_backup', JSON.stringify(apprenants));
+    if (syncing) return;
+    syncing = true;
+    setSyncStatus('saving');
+    try {
+      const res = await fetch(`${JSONBIN_URL}/${BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_KEY
+        },
+        body: JSON.stringify({ apprenants })
+      });
+      if (res.ok) {
+        setSyncStatus('ok');
+      } else {
+        setSyncStatus('error');
+      }
+    } catch(e) {
+      setSyncStatus('error', e.toString());
+    }
+    syncing = false;
+  }
+
+  // ── UTILITAIRES ──────────────────────────────────────
+  function genId() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,6); }
+  function formatFCFA(n) { return Number(n).toLocaleString('fr-FR') + ' FCFA'; }
+  function fmtDate(d) { if (!d) return '—'; const [y,m,j]=d.split('-'); return `${j}/${m}/${y}`; }
+  function afficherErreur(msg) { const el=document.getElementById('form-error'); el.textContent=msg; el.style.display=msg?'block':'none'; }
+
+  // ── CRUD ─────────────────────────────────────────────
+  function ajouterApprenant() {
+    const nom=document.getElementById('inp-nom').value.trim();
+    const frais=parseFloat(document.getElementById('inp-frais').value)||0;
+    const avance=parseFloat(document.getElementById('inp-avance').value)||0;
+    const dateAvance=document.getElementById('inp-date-avance').value;
+    const dateReste=document.getElementById('inp-date-reste').value;
+    if (!nom) return afficherErreur('⚠️ Nom requis.');
+    if (frais<=0) return afficherErreur('⚠️ Frais > 0 requis.');
+    if (avance>frais) return afficherErreur('⚠️ Avance > frais impossible.');
+    afficherErreur('');
+    apprenants.push({id:genId(), nom, frais, avance, dateAvance, dateReste, date: new Date().toLocaleDateString('fr-FR')});
+    sauvegarder(); renderTable();
+    ['inp-nom','inp-frais','inp-avance','inp-date-avance','inp-date-reste'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('inp-nom').focus();
+  }
+
+  function supprimerApprenant(i) {
+    if (confirm(`Supprimer "${apprenants[i].nom}" ?`)) { apprenants.splice(i,1); sauvegarder(); renderTable(); }
+  }
+
+  function ouvrirModal(i) {
+    editIndex=i; const a=apprenants[i];
+    document.getElementById('edit-nom').value=a.nom;
+    document.getElementById('edit-frais').value=a.frais;
+    document.getElementById('edit-avance').value=a.avance;
+    document.getElementById('edit-date-avance').value=a.dateAvance||'';
+    document.getElementById('edit-date-reste').value=a.dateReste||'';
+    updateEditPreview();
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function fermerModal() { document.getElementById('modal-overlay').classList.remove('open'); editIndex=null; }
+  function updateEditPreview() {
+    const f=parseFloat(document.getElementById('edit-frais').value)||0;
+    const a=parseFloat(document.getElementById('edit-avance').value)||0;
+    document.getElementById('edit-reste-preview').textContent=formatFCFA(Math.max(0,f-a));
+  }
+  document.getElementById('edit-frais').addEventListener('input',updateEditPreview);
+  document.getElementById('edit-avance').addEventListener('input',updateEditPreview);
+
+  function sauvegarderModif() {
+    const nom=document.getElementById('edit-nom').value.trim();
+    const frais=parseFloat(document.getElementById('edit-frais').value)||0;
+    const avance=parseFloat(document.getElementById('edit-avance').value)||0;
+    const dateAvance=document.getElementById('edit-date-avance').value;
+    const dateReste=document.getElementById('edit-date-reste').value;
+    if (!nom||frais<=0) return alert('Champs incorrects.');
+    if (avance>frais) return alert('Avance > frais impossible.');
+    apprenants[editIndex]={...apprenants[editIndex],nom,frais,avance,dateAvance,dateReste};
+    sauvegarder(); fermerModal(); renderTable();
+  }
+
+  // ── TABLE ────────────────────────────────────────────
+  function renderTable() {
+    const search=document.getElementById('search-inp').value.toLowerCase();
+    const filtered=apprenants.map((a,i)=>({...a,_i:i})).filter(a=>a.nom.toLowerCase().includes(search));
+    const tbody=document.getElementById('tbody');
+    if (!filtered.length) {
+      tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="icon">🎓</div><p>${apprenants.length===0?'Aucun apprenant enregistré.':'Aucun résultat.'}</p></div></td></tr>`;
+    } else {
+      tbody.innerHTML=filtered.map((a,idx)=>{
+        const reste=Math.max(0,a.frais-a.avance), pct=a.frais>0?(a.avance/a.frais)*100:0;
+        let bc,bt;
+        if(reste===0){bc='badge-zero';bt='✅ Soldé';}
+        else if(pct>=50){bc='badge-partial';bt='⏳ Partiel';}
+        else{bc='badge-full';bt='🔴 Dû';}
+        return `<tr>
+          <td style="color:var(--muted);font-weight:700;">${idx+1}</td>
+          <td class="td-name">${a.nom}<br><span style="font-size:9px;color:var(--muted);">${a.date||''}</span></td>
+          <td class="td-num tc-blue">${formatFCFA(a.frais)}</td>
+          <td class="td-num td-green">${formatFCFA(a.avance)}</td>
+          <td style="font-size:11px;font-weight:700;color:var(--green-dark);">${a.dateAvance?fmtDate(a.dateAvance):'<span style="color:#bbb">—</span>'}</td>
+          <td class="td-num td-red">${formatFCFA(reste)}</td>
+          <td style="font-size:11px;font-weight:700;color:${reste===0?'var(--green-dark)':'var(--red)'};">${a.dateReste?fmtDate(a.dateReste):(reste===0?'—':'<span style="color:#bbb">En attente</span>')}</td>
+          <td><span class="badge-reste ${bc}">${bt}</span></td>
+          <td class="td-actions">
+            <button class="btn btn-yellow" style="padding:5px 10px;font-size:11px;" onclick="ouvrirModal(${a._i})">✏️</button>
+            <button class="btn btn-red" style="padding:5px 10px;font-size:11px;" onclick="supprimerApprenant(${a._i})">🗑️</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    const tF=apprenants.reduce((s,a)=>s+a.frais,0);
+    const tA=apprenants.reduce((s,a)=>s+a.avance,0);
+    const tR=apprenants.reduce((s,a)=>s+Math.max(0,a.frais-a.avance),0);
+    const sol=apprenants.filter(a=>a.avance>=a.frais).length;
+    document.getElementById('tot-frais').textContent=formatFCFA(tF);
+    document.getElementById('tot-avances').textContent=formatFCFA(tA);
+    document.getElementById('tot-reste').textContent=formatFCFA(tR);
+    document.getElementById('tot-soldes').textContent=`${sol} / ${apprenants.length}`;
+    document.getElementById('stat-total').textContent=apprenants.length;
+    document.getElementById('stat-soldes').textContent=sol;
+    document.getElementById('count-badge').textContent=`${filtered.length}`;
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('modal-overlay'))fermerModal();});
+  document.getElementById('inp-avance').addEventListener('keydown',e=>{if(e.key==='Enter')ajouterApprenant();});
+</script>
+</body>
+</html>
