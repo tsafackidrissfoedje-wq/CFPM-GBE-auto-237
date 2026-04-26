@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GBE Auto 237 — Présence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #F55F00;
+    --orange-dark: #C44A00;
+    --dark: #0E0E0E;
+    --darker: #070707;
+    --surface: #161616;
+    --surface2: #1E1E1E;
+    --border: #2A2A2A;
+    --text: #F0EDE8;
+    --muted: #888;
+    --gold: #FFB800;
+    --green: #00D46A;
+    --red: #FF3B3B;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:var(--darker); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+  header {
+    background:var(--dark); border-bottom:2px solid var(--orange);
+    padding:0 20px; height:64px; display:flex; align-items:center;
+    justify-content:space-between; position:sticky; top:0; z-index:100;
+  }
+  .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; color:var(--text); display:flex; align-items:center; gap:8px; }
+  .logo span { color:var(--orange); }
+  .logo-dot { width:7px; height:7px; background:var(--orange); border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+  .live-clock { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:2px; color:var(--orange); background:rgba(245,95,0,.1); border:1px solid rgba(245,95,0,.35); padding:5px 14px; border-radius:6px; }
+
+  nav { display:flex; gap:2px; padding:16px 16px 0; border-bottom:1px solid var(--border); overflow-x:auto; }
+  .tab { font-family:'Outfit',sans-serif; font-weight:600; font-size:12px; letter-spacing:1px; text-transform:uppercase; padding:10px 18px; border:none; border-radius:8px 8px 0 0; cursor:pointer; transition:all .2s; background:transparent; color:var(--muted); border-bottom:3px solid transparent; position:relative; bottom:-1px; white-space:nowrap; }
+  .tab.active { background:var(--surface); color:var(--orange); border-bottom:3px solid var(--orange); }
+  .tab:hover:not(.active) { color:var(--text); }
+
+  main { padding:20px 16px; }
+  .page { display:none; }
+  .page.active { display:block; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; margin-bottom:16px; }
+  .card-title { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--orange); margin-bottom:16px; }
+
+  /* ZONE PHOTO */
+  .photo-zone {
+    width:100%; aspect-ratio:4/3; background:#111; border-radius:12px;
+    overflow:hidden; border:2px solid var(--border); position:relative;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:border-color .2s;
+  }
+  .photo-zone:hover { border-color:var(--orange); }
+  .corner { position:absolute; width:28px; height:28px; border-color:var(--orange); border-style:solid; opacity:.7; pointer-events:none; }
+  .corner.tl { top:10px;left:10px; border-width:3px 0 0 3px; border-radius:4px 0 0 0; }
+  .corner.tr { top:10px;right:10px; border-width:3px 3px 0 0; border-radius:0 4px 0 0; }
+  .corner.bl { bottom:10px;left:10px; border-width:0 0 3px 3px; border-radius:0 0 0 4px; }
+  .corner.br { bottom:10px;right:10px; border-width:0 3px 3px 0; border-radius:0 0 4px 0; }
+
+  .photo-placeholder { display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--muted); user-select:none; padding:20px; text-align:center; }
+  .photo-placeholder .icon { font-size:56px; opacity:.5; }
+  .photo-placeholder .hint { font-size:13px; font-weight:600; letter-spacing:1px; text-transform:uppercase; line-height:1.6; }
+  .photo-placeholder .sub { font-size:11px; opacity:.6; }
+
+  #photo-preview { width:100%; height:100%; object-fit:cover; display:none; }
+  .timestamp-badge { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.7); backdrop-filter:blur(4px); border:1px solid var(--orange); color:var(--orange); font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; padding:3px 14px; border-radius:6px; pointer-events:none; }
+
+  #file-input { display:none; }
+
+  label { display:block; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; margin-top:16px; }
+  input[type="text"], select { width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); font-family:'Outfit',sans-serif; font-size:15px; padding:12px 14px; border-radius:10px; outline:none; transition:border-color .2s; }
+  input[type="text"]:focus, select:focus { border-color:var(--orange); }
+  select option { background:var(--surface2); }
+
+  .btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:15px; border-radius:12px; border:none; font-family:'Outfit',sans-serif; font-weight:700; font-size:14px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all .2s; margin-top:12px; }
+  .btn-camera { background:var(--orange); color:#fff; font-size:16px; padding:18px; }
+  .btn-camera:hover { background:var(--orange-dark); }
+  .btn-retake { background:var(--surface2); color:var(--text); border:1px solid var(--border); display:none; }
+  .btn-retake:hover { border-color:var(--orange); color:var(--orange); }
+  .btn-success { background:var(--green); color:#000; font-weight:800; font-size:15px; }
+  .btn-success:hover { opacity:.9; }
+
+  .heure-selector { display:flex; gap:8px; margin-top:4px; }
+  .heure-opt { flex:1; padding:10px 6px; border-radius:8px; border:1.5px solid var(--border); background:var(--surface2); cursor:pointer; text-align:center; font-size:12px; font-weight:700; transition:all .2s; color:var(--muted); }
+  .heure-opt.selected { border-color:var(--orange); color:var(--orange); background:rgba(245,95,0,.1); }
+
+  .clock-box { margin-top:16px; padding:14px; background:var(--surface2); border-radius:10px; border:1px solid var(--border); }
+  .clock-label { font-size:11px; color:var(--muted); font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+  #form-clock { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:3px; color:var(--orange); }
+  #form-date { font-size:12px; color:var(--muted); margin-top:2px; }
+
+  /* CLASSEMENT */
+  .ranking-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+  .ranking-title { font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:3px; }
+  .stats-pills { display:flex; gap:8px; flex-wrap:wrap; }
+  .pill { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:5px 14px; font-size:12px; font-weight:600; color:var(--muted); display:flex; align-items:center; gap:5px; }
+  .pill span { color:var(--text); font-size:15px; font-weight:700; }
+
+  .podium { display:flex; align-items:flex-end; justify-content:center; gap:10px; margin-bottom:28px; padding:10px 0; }
+  .podium-item { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .podium-avatar { border-radius:50%; object-fit:cover; border:3px solid var(--border); background:var(--surface2); width:70px; height:70px; flex-shrink:0; }
+  .podium-1 .podium-avatar { width:86px; height:86px; border-color:var(--gold); box-shadow:0 0 18px rgba(255,184,0,.35); }
+  .podium-2 .podium-avatar { border-color:#C0C0C0; }
+  .podium-3 .podium-avatar { border-color:#CD7F32; }
+  .podium-name { font-weight:700; font-size:12px; text-align:center; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .podium-score { font-size:11px; color:var(--muted); }
+  .podium-block { display:flex; align-items:center; justify-content:center; border-radius:6px 6px 0 0; font-family:'Bebas Neue',sans-serif; font-size:26px; color:rgba(255,255,255,.85); }
+  .podium-1 .podium-block { height:90px; width:80px; background:linear-gradient(180deg,#FFB800,#C98A00); }
+  .podium-2 .podium-block { height:68px; width:68px; background:linear-gradient(180deg,#B0B0B0,#787878); }
+  .podium-3 .podium-block { height:52px; width:68px; background:linear-gradient(180deg,#CD7F32,#9A5A1A); }
+
+  .rank-list { display:flex; flex-direction:column; gap:8px; }
+  .rank-row { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; display:flex; align-items:center; gap:12px; transition:border-color .2s; animation:slideIn .3s ease both; }
+  .rank-row:hover { border-color:var(--orange); }
+  @keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+  .rank-num { font-family:'Bebas Neue',sans-serif; font-size:20px; width:28px; text-align:center; color:var(--muted); }
+  .rank-avatar { width:46px; height:46px; border-radius:50%; object-fit:cover; background:var(--surface2); border:2px solid var(--border); flex-shrink:0; }
+  .rank-info { flex:1; min-width:0; }
+  .rank-name { font-weight:700; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rank-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+  .progress-bar { height:3px; background:var(--border); border-radius:99px; overflow:hidden; margin-top:5px; }
+  .progress-fill { height:100%; background:var(--orange); border-radius:99px; transition:width .8s cubic-bezier(.34,1.1,.64,1); }
+  .rank-badge { font-size:10px; font-weight:700; letter-spacing:.5px; padding:3px 9px; border-radius:20px; text-transform:uppercase; white-space:nowrap; }
+  .badge-on-time { background:rgba(0,212,106,.15); color:var(--green); border:1px solid rgba(0,212,106,.3); }
+  .badge-late { background:rgba(255,59,59,.1); color:var(--red); border:1px solid rgba(255,59,59,.25); }
+  .rank-points { font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--orange); text-align:right; min-width:48px; }
+  .rank-pts-label { font-size:10px; color:var(--muted); text-align:right; letter-spacing:.5px; }
+
+  /* HISTORIQUE */
+  .history-filters { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .filter-btn { padding:7px 16px; border-radius:20px; border:1px solid var(--border); background:var(--surface); color:var(--muted); font-family:'Outfit',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; }
+  .filter-btn.active,.filter-btn:hover { border-color:var(--orange); color:var(--orange); background:rgba(245,95,0,.08); }
+  .history-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; }
+  .history-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:transform .2s,border-color .2s; }
+  .history-card:hover { transform:translateY(-2px); border-color:var(--orange); }
+  .history-photo { width:100%; aspect-ratio:4/3; object-fit:cover; background:var(--surface2); display:block; }
+  .history-info { padding:10px 12px; }
+  .history-name { font-weight:700; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .history-time { font-size:11px; color:var(--muted); margin-top:2px; }
+  .history-status { margin-top:6px; }
+
+  .empty { text-align:center; padding:50px 20px; color:var(--muted); }
+  .empty-icon { font-size:44px; margin-bottom:10px; opacity:.4; }
+  .empty-text { font-size:14px; }
+
+  #toast { position:fixed; bottom:24px; right:16px; left:16px; background:var(--surface); border-left:4px solid var(--green); border-radius:10px; padding:14px 18px; font-size:14px; font-weight:600; box-shadow:0 8px 32px rgba(0,0,0,.6); transform:translateY(80px); opacity:0; transition:all .35s cubic-bezier(.34,1.56,.64,1); z-index:999; }
+  #toast.show { transform:translateY(0); opacity:1; }
+  #toast.error { border-color:var(--red); }
+  #stamp-canvas { display:none; }
+  .sync-badge { font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,0.08); border:1px solid #333; color:#888; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GBE<span>AUTO</span>237<div class="logo-dot"></div></div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span class="sync-badge" id="sync-badge">☁️</span>
+    <div class="live-clock" id="live-clock">--:--:--</div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" onclick="showPage('register',this)">📸 Enregistrement</button>
+  <button class="tab" onclick="showPage('ranking',this)">🏆 Classement</button>
+  <button class="tab" onclick="showPage('history',this)">📋 Historique</button>
+</nav>
+
+<!-- INPUT FILE NATIF — ouvre l'appareil photo directement -->
+<input type="file" id="file-input" accept="image/*" capture="environment" onchange="onPhotoSelected(this)">
+<canvas id="stamp-canvas"></canvas>
+
+<main>
+
+  <!-- ENREGISTREMENT -->
+  <div class="page active" id="page-register">
+    <div class="card">
+      <div class="card-title">📸 Prise de photo</div>
+
+      <div class="photo-zone" id="photo-zone" onclick="openCamera()">
+        <div class="photo-placeholder" id="photo-placeholder">
+          <div class="icon">📷</div>
+          <div class="hint">Appuyer ici pour<br>ouvrir l'appareil photo</div>
+          <div class="sub">La fenêtre de l'appareil photo s'ouvrira</div>
+        </div>
+        <img id="photo-preview" alt="Photo apprenant">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="timestamp-badge" id="photo-time-badge">--:--</div>
+      </div>
+
+      <button class="btn btn-camera" id="btn-camera" onclick="openCamera()">
+        📷 Ouvrir l'appareil photo
+      </button>
+      <button class="btn btn-retake" id="btn-retake" onclick="retakePhoto()">
+        🔄 Reprendre la photo
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✍️ Informations</div>
+
+      <label>Nom complet de l'apprenant</label>
+      <input type="text" id="inp-nom" placeholder="Ex: Jean Claude Mbarga">
+
+      <div style="margin-top:16px;padding:12px 14px;background:rgba(245,95,0,0.08);border:1px solid rgba(245,95,0,0.3);border-radius:10px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:20px;">⏰</span>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);">Heure limite fixée</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--orange);">08:15</div>
+          <div style="font-size:11px;color:var(--muted);">Tout arrivant après 08h15 est en retard</div>
+        </div>
+      </div>
+
+      <div class="clock-box">
+        <div class="clock-label">Heure actuelle</div>
+        <div id="form-clock">--:--:--</div>
+        <div id="form-date"></div>
+      </div>
+
+      <button class="btn btn-success" onclick="enregistrer()">
+        ✅ Valider la présence
+      </button>
+    </div>
+  </div>
+
+  <!-- CLASSEMENT -->
+  <div class="page" id="page-ranking">
+    <div class="ranking-header">
+      <div class="ranking-title">🏆 Classement</div>
+      <div class="stats-pills">
+        <div class="pill">Total <span id="total-count">0</span></div>
+        <div class="pill">À l'heure <span id="ontime-count" style="color:var(--green)">0</span></div>
+      </div>
+    </div>
+    <div class="podium" id="podium"></div>
+    <div class="rank-list" id="rank-list">
+      <div class="empty"><div class="empty-icon">🏁</div><div class="empty-text">Aucun apprenant enregistré.</div></div>
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="page" id="page-history">
+    <div class="history-filters">
+      <button class="filter-btn active" onclick="filterHistory('all',this)">Tous</button>
+      <button class="filter-btn" onclick="filterHistory('ontime',this)">✅ À l'heure</button>
+      <button class="filter-btn" onclick="filterHistory('late',this)">⏰ En retard</button>
+    </div>
+    <div class="history-grid" id="history-grid">
+      <div class="empty" style="grid-column:1/-1"><div class="empty-icon">📷</div><div class="empty-text">Aucune présence enregistrée.</div></div>
+    </div>
+  </div>
+
+</main>
+<div id="toast"></div>
+
+<script>
+let students = JSON.parse(localStorage.getItem('gbe_students') || '[]');
+let photoDataUrl = null;
+let captureTime = null;
+
+// HORLOGE
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('live-clock').textContent = `${h}:${m}:${s}`;
+  document.getElementById('form-clock').textContent = `${h}:${m}:${s}`;
+  document.getElementById('photo-time-badge').textContent = `${h}:${m}`;
+  const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const months=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  document.getElementById('form-date').textContent =
+    `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// OUVRIR CAMÉRA via input file natif
+function openCamera() {
+  const inp = document.getElementById('file-input');
+  inp.value = ''; // reset pour permettre de reprendre
+  inp.click();   // ouvre le sélecteur natif → propose appareil photo
+}
+
+function onPhotoSelected(input) {
+  if (!input.files || !input.files[0]) return;
+  const now = new Date();
+  captureTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const captureTimeFull = `${captureTime}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const captureDate = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.getElementById('stamp-canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      // Bandeau horloge en bas de la photo
+      const bh = Math.max(50, img.height * 0.07);
+      ctx.fillStyle = 'rgba(0,0,0,0.68)';
+      ctx.fillRect(0, img.height - bh, img.width, bh);
+      const fs = Math.max(18, img.width * 0.044);
+      ctx.font = `bold ${fs}px monospace`;
+      ctx.fillStyle = '#F55F00';
+      ctx.fillText(captureTimeFull, 14, img.height - bh * 0.28);
+      ctx.font = `${fs * 0.55}px monospace`;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`GBE AUTO 237  •  ${captureDate}`, 14, img.height - 8);
+
+      photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+      const preview = document.getElementById('photo-preview');
+      preview.src = photoDataUrl;
+      preview.style.display = 'block';
+      document.getElementById('photo-placeholder').style.display = 'none';
+      document.getElementById('btn-camera').style.display = 'none';
+      document.getElementById('btn-retake').style.display = 'flex';
+      showToast('📸 Photo prise à ' + captureTimeFull);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function retakePhoto() {
+  photoDataUrl = null; captureTime = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-preview').src = '';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  document.getElementById('btn-camera').style.display = 'flex';
+  document.getElementById('btn-retake').style.display = 'none';
+  openCamera();
+}
+
+// FORMULAIRE
+const LIMITE = '08:15'; // Heure limite fixe GBE Auto 237
+
+function getArrivee() {
+  if (captureTime) return captureTime;
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+
+function isOnTime(arrivee) {
+  const [ah,am] = arrivee.split(':').map(Number);
+  const [lh,lm] = LIMITE.split(':').map(Number);
+  return ah*60+am <= lh*60+lm;
+}
+
+function enregistrer() {
+  const nom = document.getElementById('inp-nom').value.trim();
+  if (!nom) { showToast('⚠️ Saisissez le nom complet.', true); return; }
+  if (!photoDataUrl) { showToast('⚠️ Prenez d\'abord une photo.', true); return; }
+  const arrivee = getArrivee();
+  const now = new Date();
+  const dateStr = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+
+  students.push({ id: Date.now(), nom, photo: photoDataUrl, arrivee, limite: LIMITE, date: dateStr, isOnTime: isOnTime(arrivee) });
+  sauvegarderPresence();
+
+  showToast(isOnTime(arrivee)
+    ? `✅ ${nom} — À l'heure ! (${arrivee})`
+    : `⏰ ${nom} — En retard (${arrivee} / limite ${LIMITE})`);
+
+  document.getElementById('inp-nom').value = '';
+  photoDataUrl = null; captureTime = null;
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-preview').src = '';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  document.getElementById('btn-camera').style.display = 'flex';
+  document.getElementById('btn-retake').style.display = 'none';
+  renderRanking(); renderHistory();
+}
+
+// CLASSEMENT
+function getLeaderboard() {
+  const map = {};
+  students.forEach(s => {
+    if (!map[s.nom]) map[s.nom] = { nom:s.nom, photo:s.photo, total:0, onTime:0, pts:0 };
+    map[s.nom].total++;
+    if (s.isOnTime) map[s.nom].onTime++;
+    map[s.nom].pts += s.isOnTime ? 10 : 3;
+    map[s.nom].photo = s.photo;
+  });
+  return Object.values(map).sort((a,b) => b.pts-a.pts || b.onTime-a.onTime);
+}
+
+function renderRanking() {
+  const board = getLeaderboard();
+  const maxPts = board[0]?.pts || 1;
+  document.getElementById('total-count').textContent = students.length;
+  document.getElementById('ontime-count').textContent = students.filter(s=>s.isOnTime).length;
+
+  const podiumEl = document.getElementById('podium');
+  const medals = [
+    {rank:2,h:'68px',w:'68px',bg:'linear-gradient(180deg,#B0B0B0,#787878)'},
+    {rank:1,h:'90px',w:'80px',bg:'linear-gradient(180deg,#FFB800,#C98A00)'},
+    {rank:3,h:'52px',w:'68px',bg:'linear-gradient(180deg,#CD7F32,#9A5A1A)'}
+  ];
+  if (!board.length) {
+    podiumEl.innerHTML = '';
+    document.getElementById('rank-list').innerHTML = '<div class="empty"><div class="empty-icon">🏁</div><div class="empty-text">Aucun apprenant enregistré.</div></div>';
+    return;
+  }
+  podiumEl.innerHTML = medals.map(m => {
+    const s = board[m.rank-1]; if (!s) return '';
+    const av = s.photo ? `<img class="podium-avatar" src="${s.photo}">` : `<div class="podium-avatar" style="display:flex;align-items:center;justify-content:center;font-size:26px">👤</div>`;
+    return `<div class="podium-item podium-${m.rank}">${av}<div class="podium-name">${s.nom.split(' ')[0]}</div><div class="podium-score">${s.onTime}/${s.total} ✓</div><div class="podium-block" style="height:${m.h};width:${m.w};background:${m.bg}">${m.rank}</div></div>`;
+  }).join('');
+
+  const listEl = document.getElementById('rank-list');
+  if (board.length <= 3) { listEl.innerHTML = ''; return; }
+  listEl.innerHTML = board.slice(3).map((s,i) => {
+    const pct = Math.round((s.pts/maxPts)*100);
+    const rate = Math.round((s.onTime/s.total)*100);
+    const av = s.photo ? `<img class="rank-avatar" src="${s.photo}">` : `<div class="rank-avatar" style="display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>`;
+    const bc = rate>=80?'badge-on-time':'badge-late'; const bl = rate>=80?'✅ Ponctuel':'⏰ Irrégulier';
+    return `<div class="rank-row" style="animation-delay:${i*.05}s"><div class="rank-num">${i+4}</div>${av}<div class="rank-info"><div class="rank-name">${s.nom}</div><div class="rank-sub">${s.total} présence(s) · ${rate}% ponctualité</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div><div><span class="rank-badge ${bc}">${bl}</span></div><div><div class="rank-points">${s.pts}</div><div class="rank-pts-label">pts</div></div></div>`;
+  }).join('');
+}
+
+// HISTORIQUE
+let historyFilter = 'all';
+function filterHistory(f, btn) {
+  historyFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+function renderHistory() {
+  let list = [...students].reverse();
+  if (historyFilter==='ontime') list = list.filter(s=>s.isOnTime);
+  if (historyFilter==='late') list = list.filter(s=>!s.isOnTime);
+  const el = document.getElementById('history-grid');
+  if (!list.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📷</div><div class="empty-text">Aucune présence pour ce filtre.</div></div>'; return; }
+  el.innerHTML = list.map(s => {
+    const bc = s.isOnTime?'badge-on-time':'badge-late'; const bl = s.isOnTime?'✅ À l\'heure':'⏰ Retard';
+    const img = s.photo ? `<img class="history-photo" src="${s.photo}">` : `<div class="history-photo" style="display:flex;align-items:center;justify-content:center;font-size:36px">📷</div>`;
+    return `<div class="history-card">${img}<div class="history-info"><div class="history-name">${s.nom}</div><div class="history-time">🕐 ${s.arrivee} · 📅 ${s.date}</div><div class="history-status"><span class="rank-badge ${bc}">${bl}</span></div></div></div>`;
+  }).join('');
+}
+
+// NAV
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='ranking') renderRanking();
+  if (id==='history') renderHistory();
+}
+
+// TOAST
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show'+(isError?' error':'');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className='', 3500);
+}
+
+// ── CLOUD SYNC (JSONBin) ──────────────────────────────
+const JSONBIN_KEY = '$2a$10$ZoqDW7j3FCu6j4Gt5Uvgf.UqrzOAKrbLcXorgNGArAehWdhIBnkpq';
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
+let BIN_PRESENCE = localStorage.getItem('gbe_presence_bin') || null;
+let syncingPresence = false;
+
+function setSyncBadge(msg, color) {
+  const el = document.getElementById('sync-badge');
+  if (el) { el.textContent = msg; el.style.color = color; }
+}
+
+async function chargerPresence() {
+  setSyncBadge('⏳', '#888');
+  try {
+    if (!BIN_PRESENCE) {
+      const res = await fetch(JSONBIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY, 'X-Bin-Name': 'GBE-Presence' },
+        body: JSON.stringify({ students: [] })
+      });
+      const data = await res.json();
+      BIN_PRESENCE = data.metadata.id;
+      localStorage.setItem('gbe_presence_bin', BIN_PRESENCE);
+      students = [];
+    } else {
+      const res = await fetch(`${JSONBIN_URL}/${BIN_PRESENCE}/latest`, {
+        headers: { 'X-Master-Key': JSONBIN_KEY }
+      });
+      const data = await res.json();
+      students = data.record.students || [];
+    }
+    setSyncBadge('✅ Sync', '#00D46A');
+  } catch(e) {
+    students = JSON.parse(localStorage.getItem('gbe_students') || '[]');
+    setSyncBadge('❌ Local', '#FF3B3B');
+  }
+  renderRanking(); renderHistory();
+}
+
+async function sauvegarderPresence() {
+  localStorage.setItem('gbe_students', JSON.stringify(students));
+  if (syncingPresence || !BIN_PRESENCE) return;
+  syncingPresence = true;
+  setSyncBadge('☁️', '#FFB800');
+  try {
+    await fetch(`${JSONBIN_URL}/${BIN_PRESENCE}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body: JSON.stringify({ students })
+    });
+    setSyncBadge('✅ Sync', '#00D46A');
+  } catch(e) {
+    setSyncBadge('❌ Local', '#FF3B3B');
+  }
+  syncingPresence = false;
+}
+
+renderRanking(); renderHistory();
+chargerPresence();
+</script>
+</body>
+</html>
