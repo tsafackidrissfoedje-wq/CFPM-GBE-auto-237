@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formation Mécatronique Automobile — GBE Automobile 237</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Oswald:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rouge: #E63312;
+    --or: #F5A623;
+    --noir: #0A0A0A;
+    --gris-fonce: #141414;
+    --gris-moyen: #1E1E1E;
+    --gris-clair: #2A2A2A;
+    --blanc: #F5F0E8;
+    --blanc-pur: #FFFFFF;
+    --accent: #FF4500;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--noir);
+    color: var(--blanc);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 24px 80px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(230,51,18,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(245,166,35,0.10) 0%, transparent 60%),
+      var(--noir);
+    z-index: 0;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(230,51,18,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(230,51,18,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 40%, transparent 100%);
+  }
+
+  .hero-badge {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(230,51,18,0.15);
+    border: 1px solid rgba(230,51,18,0.4);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--or);
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero-badge span { width: 7px; height: 7px; background: var(--or); border-radius: 50%; animation: pulse 1.5s ease infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+
+  .hero h1 {
+    position: relative;
+    z-index: 2;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 10vw, 130px);
+    line-height: 0.9;
+    letter-spacing: 1px;
+    color: var(--blanc-pur);
+    margin-bottom: 10px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero h1 .accent { color: var(--rouge); display: block; }
+
+  .hero-sub {
+    position: relative;
+    z-index: 2;
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(18px, 3.5vw, 30px);
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.6);
+    margin-bottom: 32px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-desc {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.75);
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .hero-ctas {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--rouge);
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 18px 36px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s ease;
+  }
+
+  .btn-primary:hover::before { left: 100%; }
+  .btn-primary:hover { background: #c5260e; transform: translateY(-2px); box-shadow: 0 12px 40px rgba(230,51,18,0.45); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--blanc);
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 17px 32px;
+    border-radius: 4px;
+    border: 1px solid rgba(245,240,232,0.3);
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+
+  .btn-secondary:hover { border-color: var(--blanc); background: rgba(245,240,232,0.05); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.3);
+    animation: fadeUp 1s 1s ease both;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, rgba(230,51,18,0.6), transparent);
+    animation: scrollDrop 1.8s ease infinite;
+  }
+
+  @keyframes scrollDrop {
+    0% { transform: scaleY(0); transform-origin: top; opacity: 0; }
+    40% { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION WRAPPER ── */
+  section { padding: 90px 24px; }
+
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--rouge);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 2px;
+    background: var(--rouge);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(38px, 6vw, 72px);
+    line-height: 0.95;
+    color: var(--blanc-pur);
+    margin-bottom: 20px;
+  }
+
+  /* ── STATS STRIP ── */
+  .stats {
+    background: var(--gris-fonce);
+    border-top: 1px solid rgba(230,51,18,0.2);
+    border-bottom: 1px solid rgba(230,51,18,0.2);
+    padding: 0;
+  }
+
+  .stats-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .stat-item {
+    padding: 36px 24px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s;
+  }
+
+  .stat-item:last-child { border-right: none; }
+  .stat-item:hover { background: rgba(230,51,18,0.06); }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--rouge);
+    line-height: 1;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.5);
+    margin-top: 6px;
+  }
+
+  /* ── PRE-FORMATION VIDEO ── */
+  .preformation {
+    background: var(--gris-fonce);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .preformation::before {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(245,166,35,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .preformation-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+  }
+
+  @media(max-width: 800px) {
+    .preformation-inner { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  .video-frame {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 9/16;
+    max-width: 340px;
+    margin: 0 auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(230,51,18,0.2);
+  }
+
+  .video-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .video-label {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: var(--rouge);
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 2px;
+    z-index: 2;
+  }
+
+  .features-list {
+    list-style: none;
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .features-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(245,240,232,0.8);
+  }
+
+  .feat-icon {
+    width: 24px;
+    height: 24px;
+    background: rgba(230,51,18,0.15);
+    border: 1px solid rgba(230,51,18,0.35);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--rouge);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials {
+    background: var(--noir);
+    position: relative;
+  }
+
+  .testimonials::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(230,51,18,0.3), transparent);
+  }
+
+  .testi-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .testi-video-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .testi-video-frame {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 9/16;
+    max-width: 380px;
+    margin: 0 auto;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.15);
+  }
+
+  .testi-video-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  .testi-caption {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 15px;
+    color: rgba(245,240,232,0.5);
+    font-style: italic;
+  }
+
+  /* ── WHAT YOU LEARN ── */
+  .program {
+    background: var(--gris-fonce);
+  }
+
+  .program-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    margin-top: 48px;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .program-card {
+    background: var(--gris-moyen);
+    padding: 32px 28px;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .program-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--rouge);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.35s ease;
+  }
+
+  .program-card:hover { background: var(--gris-clair); }
+  .program-card:hover::before { transform: scaleY(1); }
+
+  .card-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: rgba(230,51,18,0.2);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--blanc-pur);
+    margin-bottom: 10px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(245,240,232,0.55);
+  }
+
+  /* ── CTA FINAL ── */
+  .cta-final {
+    background: var(--noir);
+    text-align: center;
+    padding: 100px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(230,51,18,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-price-tag {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(230,51,18,0.08);
+    border: 1px solid rgba(230,51,18,0.25);
+    border-radius: 12px;
+    padding: 32px 48px;
+    margin: 40px auto;
+  }
+
+  .price-from {
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+    margin-bottom: 6px;
+  }
+
+  .price-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    line-height: 1;
+    color: var(--or);
+  }
+
+  .price-note {
+    font-size: 13px;
+    color: rgba(245,240,232,0.45);
+    margin-top: 6px;
+  }
+
+  .cta-btn-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .btn-big {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--rouge);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 22px 52px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 30px rgba(230,51,18,0.35);
+  }
+
+  .btn-big:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 60px rgba(230,51,18,0.55);
+    background: #d42e0d;
+  }
+
+  .guarantee {
+    font-size: 13px;
+    color: rgba(245,240,232,0.35);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--gris-fonce);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 32px 24px;
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--rouge);
+    margin-bottom: 8px;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: rgba(245,240,232,0.25);
+  }
+
+  /* ── FLOATING CTA ── */
+  .float-cta {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+    pointer-events: none;
+  }
+
+  .float-cta.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+  .float-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--rouge);
+    color: #fff;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 14px 24px;
+    border-radius: 100px;
+    text-decoration: none;
+    box-shadow: 0 8px 32px rgba(230,51,18,0.5);
+    transition: all 0.25s ease;
+  }
+
+  .float-btn:hover { transform: scale(1.05); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(230,51,18,0.3), transparent);
+    margin: 0;
+  }
+
+  /* ── YOUTUBE THUMBNAIL PLAYER ── */
+  .yt-player {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .yt-player img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+    filter: brightness(0.85);
+  }
+
+  .yt-player:hover img {
+    transform: scale(1.03);
+    filter: brightness(0.7);
+  }
+
+  .yt-play-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.2s ease, filter 0.2s ease;
+    filter: drop-shadow(0 4px 24px rgba(0,0,0,0.7));
+    z-index: 3;
+  }
+
+  .yt-player:hover .yt-play-btn {
+    transform: translate(-50%, -50%) scale(1.12);
+    filter: drop-shadow(0 8px 32px rgba(255,0,0,0.5));
+  }
+
+  .yt-player iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-badge"><span></span> Formation Officielle GBE Automobile 237</div>
+
+  <h1>
+    Deviens Expert en
+    <span class="accent">Mécatronique</span>
+    Automobile
+  </h1>
+
+  <p class="hero-sub">La formation qui transforme ta passion en compétence réelle</p>
+
+  <p class="hero-desc">
+    Maîtrise les systèmes électroniques et mécaniques du véhicule moderne. Une formation pensée pour les passionnés qui veulent aller plus loin — diagnostics avancés, lecture de schémas, réparations professionnelles.
+  </p>
+
+  <div class="hero-ctas">
+    <a href="#apercu" class="btn-primary">
+      ▶ Voir l'aperçu gratuit
+    </a>
+    <a href="https://gbe-automobile-237.mymaketou.store/products/formation-en-mecatronique-automobile" target="_blank" class="btn-secondary">
+      Accéder à la formation →
+    </a>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    Découvrir
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-num">125K+</span>
+      <span class="stat-label">Apprenants dans le monde</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">★★★★★</span>
+      <span class="stat-label">Avis des anciens élèves</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">6</span>
+      <span class="stat-label">Modules complets</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">En ligne & à ton rythme</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PRE-FORMATION APERCU -->
+<section class="preformation" id="apercu">
+  <div class="container">
+    <div class="preformation-inner">
+      <div>
+        <div class="section-label">Avant-Goût Gratuit</div>
+        <h2 class="section-title">Regarde avant<br>de décider</h2>
+        <p style="color:rgba(245,240,232,0.65); line-height:1.75; font-size:16px; margin-bottom: 16px;">
+          Pas besoin de te précipiter. Commence par explorer cet aperçu exclusif de la pré-formation — un contenu réel, tiré directement de la formation complète.
+        </p>
+        <ul class="features-list">
+          <li>
+            <div class="feat-icon">✓</div>
+            Concepts fondamentaux de la mécatronique automobile expliqués clairement
+          </li>
+          <li>
+            <div class="feat-icon">✓</div>
+            Méthodes de diagnostic utilisées par les professionnels du secteur
+          </li>
+          <li>
+            <div class="feat-icon">✓</div>
+            Pédagogie accessible, même sans base technique avancée
+          </li>
+          <li>
+            <div class="feat-icon">✓</div>
+            Format vidéo optimisé pour apprendre efficacement à ton rythme
+          </li>
+        </ul>
+      </div>
+      <div>
+        <div class="video-frame">
+          <div class="video-label">🎓 Pré-formation</div>
+          <div class="yt-player" data-id="fRK07v_XLSs">
+            <img
+              src="https://img.youtube.com/vi/fRK07v_XLSs/maxresdefault.jpg"
+              onerror="this.src='https://img.youtube.com/vi/fRK07v_XLSs/hqdefault.jpg'"
+              alt="Aperçu de la formation GBE Automobile 237"
+              loading="lazy"
+            />
+            <button class="yt-play-btn" aria-label="Lancer la vidéo">
+              <svg viewBox="0 0 68 48" width="68" height="48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C0 13.05 0 24 0 24s0 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C68 34.95 68 24 68 24s0-10.95-1.48-16.26z" fill="#ff0000"/><path d="M45 24 27 14v20" fill="#fff"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMME -->
+<section class="program">
+  <div class="container">
+    <div class="section-label">Programme</div>
+    <h2 class="section-title">Ce que tu vas maîtriser</h2>
+    <p style="color:rgba(245,240,232,0.55); font-size:15px; max-width:560px;">
+      Une formation structurée, progressive, centrée sur les réalités du terrain automobile moderne.
+    </p>
+
+    <div class="program-grid">
+      <div class="program-card">
+        <div class="card-num">01</div>
+        <div class="card-title">Programmation de Clés</div>
+        <div class="card-desc">Programme des clés perdues et fais des doubles comme un pro — maîtrise les systèmes d'immobilisation et de codage de clés toutes marques.</div>
+      </div>
+      <div class="program-card">
+        <div class="card-num">02</div>
+        <div class="card-title">Calculateur & Immo Off</div>
+        <div class="card-desc">Clone un calculateur, réalise l'ImmoOff, le DPF Off, Lambda Off et EGR Off — des opérations recherchées et très bien rémunérées sur le marché.</div>
+      </div>
+      <div class="program-card">
+        <div class="card-num">03</div>
+        <div class="card-title">GPS & Coupure Moteur</div>
+        <div class="card-desc">Installe des systèmes de navigation GPS avancés pour localiser un véhicule et couper son moteur à distance — sécurité et contrôle total.</div>
+      </div>
+      <div class="program-card">
+        <div class="card-num">04</div>
+        <div class="card-title">Diagnostic OBD2</div>
+        <div class="card-desc">Maîtrise l'outil essentiel du technicien moderne — analyse, interprète et répare tout type de véhicule grâce au diagnostic électronique OBD2.</div>
+      </div>
+      <div class="program-card">
+        <div class="card-num">05</div>
+        <div class="card-title">Kilométrage & Électricité Auto</div>
+        <div class="card-desc">Modifications de kilométrage, bases complètes de l'électricité automobile et accès à nos logiciels exclusifs en bonus.</div>
+      </div>
+      <div class="program-card">
+        <div class="card-num">06</div>
+        <div class="card-title">Caméra de Recul & Android Auto</div>
+        <div class="card-desc">Installation professionnelle de caméra de recul et de lecteur Android embarqué — confort, modernisation et valeur ajoutée sur chaque véhicule.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials" id="temoignages">
+  <div class="container">
+    <div class="testi-header">
+      <div class="section-label" style="justify-content:center;">Ils Témoignent</div>
+      <h2 class="section-title">Ce que disent<br>les anciens élèves</h2>
+      <p style="color:rgba(245,240,232,0.5); font-size:15px; max-width:480px; margin:0 auto;">
+        Des vraies personnes, de vrais résultats. Regarde leurs témoignages avant de rejoindre l'aventure.
+      </p>
+    </div>
+
+    <div class="testi-video-wrap">
+      <div class="testi-video-frame">
+          <div class="yt-player" data-id="aGq9mMicM8c">
+            <img
+              src="https://img.youtube.com/vi/aGq9mMicM8c/maxresdefault.jpg"
+              onerror="this.src='https://img.youtube.com/vi/aGq9mMicM8c/hqdefault.jpg'"
+              alt="Témoignages des anciens élèves GBE Automobile 237"
+              loading="lazy"
+            />
+            <button class="yt-play-btn" aria-label="Lancer la vidéo">
+              <svg viewBox="0 0 68 48" width="68" height="48"><path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C0 13.05 0 24 0 24s0 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C68 34.95 68 24 68 24s0-10.95-1.48-16.26z" fill="#ff0000"/><path d="M45 24 27 14v20" fill="#fff"/></svg>
+            </button>
+          </div>
+        </div>
+      <p class="testi-caption">🎙️ Témoignages authentiques d'anciens élèves de la formation GBE Automobile 237</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final" id="inscription">
+  <div class="cta-final-bg"></div>
+  <div class="container" style="position:relative; z-index:2;">
+
+    <div class="section-label" style="justify-content:center;">Rejoins la Formation</div>
+    <h2 class="section-title" style="font-size:clamp(42px,7vw,90px);">
+      Prêt à passer<br>au niveau supérieur ?
+    </h2>
+    <p style="color:rgba(245,240,232,0.6); font-size:17px; max-width:520px; margin:20px auto 0; line-height:1.7;">
+      Investis dans ta compétence dès aujourd'hui. Plus de <strong style="color:var(--or)">125 600 apprenants</strong> dans le monde entier ont déjà transformé leur carrière avec GBE Automobile 237.
+    </p>
+
+    <div class="cta-price-tag">
+      <div class="price-from">Accès complet à la formation</div>
+      <div class="price-amount">🔥 Disponible</div>
+      <div class="price-note">Paiement sécurisé · Accès immédiat</div>
+    </div>
+
+    <div class="cta-btn-wrap">
+      <a href="https://gbe-automobile-237.mymaketou.store/products/formation-en-mecatronique-automobile" target="_blank" class="btn-big">
+        🚀 Je veux accéder à la formation
+      </a>
+      <p class="guarantee">
+        🔒 Plateforme sécurisée &nbsp;·&nbsp; Support disponible
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">GBE Automobile 237</div>
+  <div class="footer-copy">© 2025 GBE Automobile 237 — Tous droits réservés · Formation en Mécatronique Automobile</div>
+</footer>
+
+<!-- FLOATING CTA -->
+<div class="float-cta" id="floatCta">
+  <a href="https://gbe-automobile-237.mymaketou.store/products/formation-en-mecatronique-automobile" target="_blank" class="float-btn">
+    🚀 Accéder à la formation
+  </a>
+</div>
+
+<script>
+  // YouTube click-to-play
+  document.querySelectorAll('.yt-player').forEach(player => {
+    player.addEventListener('click', () => {
+      const id = player.dataset.id;
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      // Hide thumbnail + button
+      player.querySelector('img').style.display = 'none';
+      player.querySelector('.yt-play-btn').style.display = 'none';
+      player.appendChild(iframe);
+    });
+  });
+
+  // Show floating CTA after scrolling past hero
+  const floatCta = document.getElementById('floatCta');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > window.innerHeight * 0.7) {
+      floatCta.classList.add('visible');
+    } else {
+      floatCta.classList.remove('visible');
+    }
+  });
+
+  // Fade-in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.program-card, .stat-item').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
